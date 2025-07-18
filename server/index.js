@@ -20,7 +20,7 @@ const NODE_ENV = process.env.NODE_ENV || 'development';
 
 app.use(cors({
   origin: NODE_ENV === 'production' 
-    ? ['https://your-frontend-domain.vercel.app', 'https://your-frontend-domain.netlify.app']
+    ? ['https://google-search-app-frontend-n1bmqwdqc-rishabhs-projects-705a5dc1.vercel.app', 'https://your-frontend-domain.vercel.app', 'https://your-frontend-domain.netlify.app']
     : ['http://localhost:5173', 'http://localhost:3000'],
   credentials: true
 }));
