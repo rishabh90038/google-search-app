@@ -27,6 +27,7 @@ app.use(cors({
 app.use(express.json({ limit: '1mb' }));
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecret';
 const USER = { email: 'test@demo.com', password: 'password123', name: 'Test User' };
+const ADMIN = { email: 'rishabh@gmail.com', password: 'admin123', name: 'Admin User' };
 
 // --- MongoDB Setup ---
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/google-search-app';
@@ -142,15 +143,45 @@ app.delete('/api/history', authenticateToken, async (req, res, next) => {
   }
 });
 
+// --- Admin Login Endpoint ---
+app.post('/api/admin/login', async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email and password are required.' });
+    }
+    if (typeof email !== 'string' || typeof password !== 'string') {
+      return res.status(400).json({ message: 'Invalid input type.' });
+    }
+    if (email !== ADMIN.email || password !== ADMIN.password) {
+      return res.status(401).json({ message: 'Invalid admin credentials' });
+    }
+    const jwt = require('jsonwebtoken');
+    const adminToken = jwt.sign({ email: ADMIN.email, name: ADMIN.name, role: 'admin' }, JWT_SECRET, { expiresIn: '2h' });
+    return res.json({ token: adminToken, user: { email: ADMIN.email, name: ADMIN.name, role: 'admin' } });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // --- Admin Middleware ---
-const ADMIN_JWT = process.env.ADMIN_JWT || 'adminsecret';
 function adminAuth(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
-  if (!token || token !== ADMIN_JWT) {
-    return res.status(403).json({ message: 'Admin access denied' });
+  if (!token) {
+    return res.status(401).json({ message: 'Admin token required' });
   }
-  next();
+  try {
+    const jwt = require('jsonwebtoken');
+    const decoded = jwt.verify(token, JWT_SECRET);
+    if (decoded.role !== 'admin') {
+      return res.status(403).json({ message: 'Admin access required' });
+    }
+    req.admin = decoded;
+    next();
+  } catch (err) {
+    return res.status(403).json({ message: 'Invalid admin token' });
+  }
 }
 
 // --- Admin Endpoint: List all users and their search history ---
