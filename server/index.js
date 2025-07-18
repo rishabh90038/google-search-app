@@ -9,6 +9,10 @@ const authenticateToken = require('./middleware/auth');
 const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
+
+// Trust proxy for rate limiting behind Render
+app.set('trust proxy', 1);
+
 app.use(helmet());
 
 const PORT = process.env.PORT || 5000;
