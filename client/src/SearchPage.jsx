@@ -128,15 +128,23 @@ export default function SearchPage() {
     <div className="container py-5">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
       {loading && <Loader />}
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <div className="d-flex align-items-center gap-2">
-          <div className="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style={{width: 40, height: 40, fontWeight: 'bold', fontSize: 18}}>
-            {getInitials(user?.name, user?.email)}
+              <div className="d-flex justify-content-between align-items-center mb-4">
+          <div className="d-flex align-items-center gap-2">
+            <div className="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style={{width: 40, height: 40, fontWeight: 'bold', fontSize: 18}}>
+              {getInitials(user?.name, user?.email)}
+            </div>
+            <div className="fw-semibold fs-5 ms-2">Hi, {user?.name || user?.email}!</div>
           </div>
-          <div className="fw-semibold fs-5 ms-2">Hi, {user?.name || user?.email}!</div>
+          <button 
+            onClick={() => {
+              logout();
+              setToast({ message: 'Logged out successfully!', type: 'info' });
+            }} 
+            className="btn btn-outline-danger btn-sm"
+          >
+            Logout
+          </button>
         </div>
-        <button onClick={logout} className="btn btn-outline-danger btn-sm">Logout</button>
-      </div>
       <div className="card shadow p-4 mb-4">
         <form onSubmit={e => handleSearch(e, 1)} className="row g-2 align-items-center">
           <div className="col-md-8 position-relative">

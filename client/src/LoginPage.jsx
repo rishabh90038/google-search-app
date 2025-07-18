@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from './App';
 import { API_BASE_URL } from './config';
+import Toast from './components/Toast';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [toast, setToast] = useState(null);
   const navigate = useNavigate();
   const { login } = useAuth();
 
@@ -15,6 +17,7 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setToast(null);
     try {
       const res = await fetch(`${API_BASE_URL}/api/login`, {
         method: 'POST',
@@ -24,9 +27,11 @@ export default function LoginPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Login failed');
       login(data.user, data.token);
-      navigate('/');
+      setToast({ message: `Welcome back, ${data.user.name}!`, type: 'success' });
+      setTimeout(() => navigate('/'), 1000); // Navigate after toast shows
     } catch (err) {
       setError(err.message);
+      setToast({ message: err.message, type: 'danger' });
     } finally {
       setLoading(false);
     }
@@ -34,6 +39,7 @@ export default function LoginPage() {
 
   return (
     <div className="container vh-100 d-flex align-items-center justify-content-center bg-light">
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
       <div className="card shadow p-4" style={{ minWidth: 350 }}>
         <h2 className="text-center mb-4">Login</h2>
         {error && <div className="alert alert-danger text-center">{error}</div>}

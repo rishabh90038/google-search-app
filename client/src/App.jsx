@@ -9,6 +9,7 @@ import {
 import LoginPage from './LoginPage';
 import SearchPage from './SearchPage';
 import AdminPanel from './AdminPanel';
+import AdminLoginPage from './AdminLoginPage';
 
 // Auth context for managing JWT and user info
 const AuthContext = createContext();
@@ -90,12 +91,13 @@ export default function App() {
           <nav className="navbar navbar-expand navbar-light bg-light px-3 mb-2">
             <a className="navbar-brand" href="/">Google Search App</a>
             <div className="navbar-nav ms-auto d-flex align-items-center">
-              <a className="nav-link me-3" href="/admin">Admin Panel</a>
+              <a className="nav-link me-3" href="/admin-login">Admin Login</a>
               <DarkModeToggle />
             </div>
           </nav>
           <Routes>
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/admin-login" element={<AdminLoginPage />} />
             <Route path="/admin" element={<AdminRoute><AdminPanel /></AdminRoute>} />
             <Route
               path="/"
