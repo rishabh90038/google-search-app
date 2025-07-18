@@ -25,9 +25,13 @@ const USER = { email: 'test@demo.com', password: 'password123', name: 'Test User
 
 // --- MongoDB Setup ---
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/google-search-app';
-mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log('MongoDB connected'))
-  .catch(err => console.error('MongoDB connection error:', err));
+if (MONGODB_URI !== 'mongodb://localhost:27017/google-search-app') {
+  mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(() => console.log('MongoDB connected'))
+    .catch(err => console.error('MongoDB connection error:', err));
+} else {
+  console.log('MongoDB connection skipped (using local URI)');
+}
 
 const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
