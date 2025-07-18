@@ -10,6 +10,10 @@ const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
 app.use(helmet());
+
+const PORT = process.env.PORT || 5000;
+const NODE_ENV = process.env.NODE_ENV || 'development';
+
 app.use(cors({
   origin: NODE_ENV === 'production' 
     ? ['https://your-frontend-domain.vercel.app', 'https://your-frontend-domain.netlify.app']
@@ -17,9 +21,6 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json({ limit: '1mb' }));
-
-const PORT = process.env.PORT || 5000;
-const NODE_ENV = process.env.NODE_ENV || 'development';
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecret';
 const USER = { email: 'test@demo.com', password: 'password123', name: 'Test User' };
 
