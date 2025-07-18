@@ -10,10 +10,16 @@ const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
 app.use(helmet());
-app.use(cors({ origin: process.env.CORS_ORIGIN || true }));
+app.use(cors({
+  origin: NODE_ENV === 'production' 
+    ? ['https://your-frontend-domain.vercel.app', 'https://your-frontend-domain.netlify.app']
+    : ['http://localhost:5173', 'http://localhost:3000'],
+  credentials: true
+}));
 app.use(express.json({ limit: '1mb' }));
 
 const PORT = process.env.PORT || 5000;
+const NODE_ENV = process.env.NODE_ENV || 'development';
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecret';
 const USER = { email: 'test@demo.com', password: 'password123', name: 'Test User' };
 
@@ -122,6 +128,37 @@ app.delete('/api/history', authenticateToken, async (req, res, next) => {
   try {
     await SearchHistory.deleteMany({ userEmail: req.user.email });
     res.json({ message: 'Search history cleared' });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// --- Admin Middleware ---
+const ADMIN_JWT = process.env.ADMIN_JWT || 'adminsecret';
+function adminAuth(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  if (!token || token !== ADMIN_JWT) {
+    return res.status(403).json({ message: 'Admin access denied' });
+  }
+  next();
+}
+
+// --- Admin Endpoint: List all users and their search history ---
+app.get('/api/admin/users', adminAuth, async (req, res, next) => {
+  try {
+    const users = await User.find({});
+    const histories = await SearchHistory.find({});
+    const userMap = {};
+    users.forEach(u => {
+      userMap[u.email] = { name: u.name, email: u.email, history: [] };
+    });
+    histories.forEach(h => {
+      if (userMap[h.userEmail]) {
+        userMap[h.userEmail].history.push({ query: h.query, timestamp: h.timestamp });
+      }
+    });
+    res.json({ users: Object.values(userMap) });
   } catch (err) {
     next(err);
   }

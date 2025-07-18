@@ -3,6 +3,7 @@ import { useAuth } from './App';
 import ResultCard from './components/ResultCard';
 import Loader from './components/Loader';
 import Toast from './components/Toast';
+import { API_BASE_URL } from './config';
 
 function getInitials(name, email) {
   if (name) {
@@ -28,7 +29,7 @@ export default function SearchPage() {
   useEffect(() => {
     async function fetchHistory() {
       try {
-        const res = await fetch('http://localhost:5000/api/history', {
+        const res = await fetch(`${API_BASE_URL}/api/history`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
@@ -65,7 +66,7 @@ export default function SearchPage() {
     if (nextPage === 1) setResults([]);
     try {
       abortControllerRef.current = new AbortController();
-      const res = await fetch('http://localhost:5000/api/search', {
+              const res = await fetch(`${API_BASE_URL}/api/search`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -93,7 +94,7 @@ export default function SearchPage() {
   // Fetch history helper
   const fetchHistoryBackend = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/history', {
+      const res = await fetch(`${API_BASE_URL}/api/history`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -108,7 +109,7 @@ export default function SearchPage() {
 
   const handleClearHistory = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/history', {
+      const res = await fetch(`${API_BASE_URL}/api/history`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });
