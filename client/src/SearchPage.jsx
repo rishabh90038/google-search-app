@@ -22,6 +22,7 @@ export default function SearchPage() {
   const [history, setHistory] = useState([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
+  const [autoSearch, setAutoSearch] = useState(true); // Toggle for auto-search
   const debounceRef = useRef();
   const abortControllerRef = useRef();
 
@@ -39,9 +40,9 @@ export default function SearchPage() {
     fetchHistory();
   }, [token]);
 
-  // Debounced search effect
+  // Debounced search effect (only when autoSearch is enabled)
   useEffect(() => {
-    if (!query.trim()) return;
+    if (!query.trim() || !autoSearch) return;
     if (page !== 1) return; // Only debounce for first page
     setLoading(true);
     setError('');
@@ -55,7 +56,7 @@ export default function SearchPage() {
       if (abortControllerRef.current) abortControllerRef.current.abort();
     };
     // eslint-disable-next-line
-  }, [query]);
+  }, [query, autoSearch]);
 
   const handleSearch = async (e, nextPage = 1, fromDebounce = false) => {
     if (e) e.preventDefault();
@@ -138,7 +139,7 @@ export default function SearchPage() {
       </div>
       <div className="card shadow p-4 mb-4">
         <form onSubmit={e => handleSearch(e, 1)} className="row g-2 align-items-center">
-          <div className="col-md-10 position-relative">
+          <div className="col-md-8 position-relative">
             <input
               type="text"
               className="form-control"
@@ -167,6 +168,20 @@ export default function SearchPage() {
             <button type="submit" className="btn btn-primary w-100" disabled={loading}>
               {loading ? 'Searching...' : 'Search'}
             </button>
+          </div>
+          <div className="col-md-2">
+            <div className="form-check form-switch">
+              <input
+                className="form-check-input"
+                type="checkbox"
+                id="autoSearchToggle"
+                checked={autoSearch}
+                onChange={(e) => setAutoSearch(e.target.checked)}
+              />
+              <label className="form-check-label small" htmlFor="autoSearchToggle">
+                Auto-search
+              </label>
+            </div>
           </div>
         </form>
         {recentQueries.length > 0 && (
